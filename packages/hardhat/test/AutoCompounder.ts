@@ -1,35 +1,30 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { YourContract } from "../typechain-types";
+import { AutoCompounder } from "../typechain-types";
 
-describe("AutoCompunder", function () {
+describe("AutoCompounder", function () {
   // We define a fixture to reuse the same setup in every test.
 
-  let yourContract: YourContract;
+  let autoCompounder: AutoCompounder;
   before(async () => {
     const [owner] = await ethers.getSigners();
-    const yourContractFactory = await ethers.getContractFactory("YourContract");
-    yourContract = (await yourContractFactory.deploy(owner.address)) as YourContract;
-    await yourContract.deployed();
+    const yourContractFactory = await ethers.getContractFactory("AutoCompounder");
+    autoCompounder = (await yourContractFactory.deploy(owner.address)) as AutoCompounder;
+    await autoCompounder.deployed();
   });
 
   describe("Deployment", function () {
-    // it("Should have 0 balance", async function () {
-    // expect(await yourContract.balance()).to.equal(0);
-    // })
-    it("Should have the right message on deploy", async function () {
-      expect(await yourContract.greeting()).to.equal("Building Unstoppable Apps!!!");
+    it("Should have 0 balance", async function () {
+      const [owner] = await ethers.getSigners();
+      expect(await autoCompounder.balanceOf(owner.address)).to.equal(0);
     });
 
-    // it("Should allow deposit", async function () {
-    // expect(await yourContract.deposit()).to.be.revertedWith("idk");
-    // })
+    it("Should not allow withdraw", async function () {
+      expect(await autoCompounder.withdraw(1)).to.be.revertedWith("nothing to withdraw");
+    });
 
-    it("Should allow setting a new message", async function () {
-      const newGreeting = "Learn Scaffold-ETH 2! :)";
-
-      await yourContract.setGreeting(newGreeting);
-      expect(await yourContract.greeting()).to.equal(newGreeting);
+    it("Should not allow deposit of 0", async function () {
+      expect(await autoCompounder.deposit(0)).to.be.revertedWith("deposit is to few");
     });
   });
 });
